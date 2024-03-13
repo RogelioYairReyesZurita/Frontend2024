@@ -11,13 +11,18 @@ function App() {
     setContador(contador - 1)               //3
   }
 
+  const handleBotonReset = ()=>{
+    setContador(contador - contador)               //3
+  }
+
   return (
     <div>
       <h1>Contador</h1>
       <hr />
       <h2>{contador}</h2>
       <button onClick={handleBotonIncremento}>Incrementar</button> <br /> <br />
-      <button onClick={handleBotonDecremento}>Decrementar</button>
+      <button onClick={handleBotonDecremento}>Decrementar</button> <br /> <br />
+      <button onClick={handleBotonReset}>Resetear</button>
     </div>
   )
 }
