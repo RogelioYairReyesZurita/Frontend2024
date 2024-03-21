@@ -1,8 +1,9 @@
 import { useState } from "react"
+import { useForm } from "./Hooks/useForm"
 
 function App() {
-
-  const [inputsForm,setImputsForm]=useState({
+  
+  const [inputsForm,handleInputChange,formReset]=useForm({
     username:"",
     password:""
   })
@@ -11,21 +12,8 @@ function App() {
     e.preventDefault()
     console.log("Mi usuario es: ",inputsForm.username)
     console.log("Mi contraseña es: ",inputsForm.password)
-    setImputsForm({
-      username:"",
-      password:""
-    })
-    
+    formReset()
   }
-
-// ----------------------------------------------------------------------------------------------
-  const handleInputChange=(event)=>{
-    setImputsForm({
-      ...inputsForm,
-      [event.target.name]:event.target.value
-    })
-  }
-
 // ----------------------------------------------------------------------------------------------------
   return (
     <div>
