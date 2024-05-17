@@ -1,4 +1,5 @@
 import Swal from "sweetalert2"
+import PropTypes from "prop-types"
 
 const ShowItemModal = ({ task, taskList, setTaskList }) => {
 
@@ -32,7 +33,7 @@ const ShowItemModal = ({ task, taskList, setTaskList }) => {
                 <div className="modal-content">
                     <div className="modal-header">
                         <h1 className="modal-title" id="ShowItemModalLabel">
-                            ({task.id}){task.task}
+                            {task.task}
                         </h1>
                         <button
                             type="button"
@@ -64,7 +65,11 @@ const ShowItemModal = ({ task, taskList, setTaskList }) => {
                             data-bs-dismiss='modal'>
                             <i className="bi bi-trash"></i>Delete
                         </button>
-                        <button className="btn btn-sm btn-outline-primary">
+                        
+                        <button 
+                        className="btn btn-sm btn-outline-primary"
+                        data-bs-target={"#AddTaskModal"+task.id}
+                        data-bs-toggle="modal">
                             <i className="bi bi-pencil-square"></i>Edit
                         </button>
                         <button
@@ -79,4 +84,9 @@ const ShowItemModal = ({ task, taskList, setTaskList }) => {
     )
 }
 
+ShowItemModal.propTypes={
+    task: PropTypes.object.isRequired,
+    taskList: PropTypes.array.isRequired,
+    setTaskList: PropTypes.func.isRequired
+}
 export default ShowItemModal
