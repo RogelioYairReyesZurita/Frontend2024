@@ -7,6 +7,23 @@ const CountrySearch = () => {
   const [countryDataList, setCountryDataList] = useState([]);
 
 
+  // ---------------------para buscar 3 pises aleatorios------------------
+  const getRandomCountries = (countries, num) => {
+    let result = [];
+    let len = countries.length;
+    let taken = new Array(len);
+    if (num > len) {
+      return countries; 
+    }
+    while (num--) {
+      let x = Math.floor(Math.random() * len);
+      result.push(countries[x in taken ? taken[x] : x]);
+      taken[x] = --len in taken ? taken[len] : len;
+    }
+    return result;
+  };
+
+
   // ------------------------pagina handleSearch ------------------------------
   const handleSearch = async () => {
     try {
@@ -18,10 +35,17 @@ const CountrySearch = () => {
       } else if (searchType === 'capital') {
         response = await axios.get(`https://restcountries.com/v3.1/capital/${searchTerm}`);
       }
-      setCountryDataList([...countryDataList, response.data[0]]);
+
+      if (searchType === 'language') {
+        const randomCountries = getRandomCountries(response.data, 3);
+        setCountryDataList([...countryDataList, ...randomCountries]); 
+      } else {
+        setCountryDataList([...countryDataList, ...response.data]); 
+      }
+
     } catch (error) {
       console.error('Error fetching country data:', error);
-      setCountryData(null);
+      setCountryDataList([]);
     }
   };
 
@@ -108,6 +132,7 @@ const CountrySearch = () => {
 
       {/* ------------card-------------------------- */}
       <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+
         {countryDataList.map((country, index) => (
           <div className="card bg-secondary" style={{ width: '18rem', border: '1px solid #ccc', margin: '10px', padding: '10px' }} key={index} >
             <img src={country.flags.svg} alt={`${country.name.common} flag`} class="card-img-top" />
@@ -119,6 +144,7 @@ const CountrySearch = () => {
             </ul>
           </div>
         ))}
+        
       </div>
 
     </div>
