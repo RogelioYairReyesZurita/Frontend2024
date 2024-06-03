@@ -1,17 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const CountrySearch = () => {
   const [searchType, setSearchType] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [countryDataList, setCountryDataList] = useState([]);
-
-  // Estado para almacenar el país seleccionado
-  const [selectedCountry, setSelectedCountry] = useState(null);
-  // Estado para controlar la visibilidad del modal
-  const [showModal, setShowModal] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(null);  // Estado para almacenar el país seleccionado
+  const [showModal, setShowModal] = useState(false);  // Estado para controlar la visibilidad del modal
 
 
+  // ----------------------localstorage------------------------------------
+
+  // recupera las búsquedas guardadas al cargar el componente
+  useEffect(() => {
+    const savedCountryDataList = JSON.parse(localStorage.getItem('countryDataList'));
+    if (savedCountryDataList) {
+      setCountryDataList(savedCountryDataList);
+    }
+  }, []);
+
+  // guarda las búsquedas en el almacenamiento local
+  const saveToLocalStorage = (data) => {
+    localStorage.setItem('countryDataList', JSON.stringify(data));
+  };
+
+  // función para eliminar un país de la lista
+  const handleRemoveCountry = (index) => {
+    const newCountryDataList = countryDataList.filter((_, i) => i !== index);
+    setCountryDataList(newCountryDataList);
+    saveToLocalStorage(newCountryDataList);
+    Swal.fire({
+      icon: 'warning',
+      title: 'País Eliminado',
+      text: 'El país ha sido eliminado de la lista.',
+    });
+  };
 
   // ---------------------para buscar 3 pises aleatorios------------------
   const getRandomCountries = (countries, num) => {
@@ -42,12 +66,22 @@ const CountrySearch = () => {
         response = await axios.get(`https://restcountries.com/v3.1/capital/${searchTerm}`);
       }
 
+      let newCountryDataList;
       if (searchType === 'language') {
         const randomCountries = getRandomCountries(response.data, 3);
-        setCountryDataList([...countryDataList, ...randomCountries]);
+        newCountryDataList = [...countryDataList, ...randomCountries];
       } else {
-        setCountryDataList([...countryDataList, ...response.data]);
+        newCountryDataList = [...countryDataList, ...response.data];
       }
+
+      setCountryDataList(newCountryDataList);
+      saveToLocalStorage(newCountryDataList);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'País Añadido',
+        text: 'El país ha sido añadido a la lista.',
+      });
 
     } catch (error) {
       console.error('Error fetching country data:', error);
@@ -158,7 +192,7 @@ const CountrySearch = () => {
               alt={`${country.name.common} flag`}
               class="card-img-top"
               onClick={() => handleFlagClick(country)}
-              style={{ cursor: 'pointer' }} // Añadir cursor de puntero
+              style={{ cursor: 'pointer' }} 
             />
             <ul className="list-group list-group-flush ">
               <li className="list-group-item text-white"><h5 style={{
@@ -170,6 +204,7 @@ const CountrySearch = () => {
           `
               }}>{country.name.common}
               </h5>
+              <button onClick={(e) => { e.stopPropagation(); handleRemoveCountry(index); }}>Remove</button>
               </li>
             </ul>
 
