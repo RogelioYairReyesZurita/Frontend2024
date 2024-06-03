@@ -6,6 +6,12 @@ const CountrySearch = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [countryDataList, setCountryDataList] = useState([]);
 
+  // Estado para almacenar el país seleccionado
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  // Estado para controlar la visibilidad del modal
+  const [showModal, setShowModal] = useState(false);
+
+
 
   // ---------------------para buscar 3 pises aleatorios------------------
   const getRandomCountries = (countries, num) => {
@@ -13,7 +19,7 @@ const CountrySearch = () => {
     let len = countries.length;
     let taken = new Array(len);
     if (num > len) {
-      return countries; 
+      return countries;
     }
     while (num--) {
       let x = Math.floor(Math.random() * len);
@@ -38,9 +44,9 @@ const CountrySearch = () => {
 
       if (searchType === 'language') {
         const randomCountries = getRandomCountries(response.data, 3);
-        setCountryDataList([...countryDataList, ...randomCountries]); 
+        setCountryDataList([...countryDataList, ...randomCountries]);
       } else {
-        setCountryDataList([...countryDataList, ...response.data]); 
+        setCountryDataList([...countryDataList, ...response.data]);
       }
 
     } catch (error) {
@@ -60,6 +66,18 @@ const CountrySearch = () => {
   };
 
 
+
+  // Función para manejar el clic en la bandera del país
+  const handleFlagClick = (country) => {
+    setSelectedCountry(country);
+    setShowModal(true);
+  };
+
+  // Función para cerrar el modal
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedCountry(null);
+  };
 
   return (
     <div >
@@ -134,18 +152,62 @@ const CountrySearch = () => {
       <div style={{ display: 'flex', flexWrap: 'wrap' }}>
 
         {countryDataList.map((country, index) => (
-          <div className="card bg-secondary" style={{ width: '18rem', border: '1px solid #ccc', margin: '10px', padding: '10px' }} key={index} >
-            <img src={country.flags.svg} alt={`${country.name.common} flag`} class="card-img-top" />
+          <div className="card border border-dark px-1 bg-secondary" style={{ width: '18rem', border: '1px solid #ccc', margin: '10px', padding: '10px' }} key={index} >
+            <img
+              src={country.flags.svg}
+              alt={`${country.name.common} flag`}
+              class="card-img-top"
+              onClick={() => handleFlagClick(country)}
+              style={{ cursor: 'pointer' }} // Añadir cursor de puntero
+            />
             <ul className="list-group list-group-flush ">
-              <li className="list-group-item">Name: {country.name.common}</li>
-              <li className="list-group-item">Capital: {country.capital ? country.capital[0] : 'N/A'}</li>
-              <li className="list-group-item">Population: {country.population}</li>
-              <li className="list-group-item">Area: {country.area} km²</li>
+              <li className="list-group-item text-white"><h5 style={{
+                textShadow: `
+            -1px -1px 0 #000,  
+             1px -1px 0 #000,
+            -1px  1px 0 #000,
+             1px  1px 0 #000
+          `
+              }}>{country.name.common}
+              </h5>
+              </li>
             </ul>
+
           </div>
         ))}
-        
       </div>
+
+      {/* Modal */}
+      {selectedCountry && (
+        <div
+          className={`modal ${showModal ? 'show' : ''} `}
+          tabIndex="-1"
+          role="dialog"
+          style={{ display: showModal ? 'block' : 'none' }}>
+
+          <div className="modal-dialog " role="document">
+            <div className="modal-content ">
+              <div className="modal-header">
+                <h5 className="modal-title">{selectedCountry.name.common}</h5>
+                <button type="button" className="btn-close" aria-label="Close" onClick={handleCloseModal}></button>
+              </div>
+              <div className="modal-body">
+                <p><ion-icon name="flag-outline"></ion-icon> <strong> Capital:</strong> {selectedCountry.capital ? selectedCountry.capital[0] : 'N/A'}</p>
+                <p><ion-icon name="people-outline"></ion-icon><strong> Population:</strong> {selectedCountry.population}</p>
+                <p><ion-icon name="image-outline"></ion-icon><strong> Area:</strong> {selectedCountry.area} km²</p>
+                <p><ion-icon name="map-outline"></ion-icon><strong> Region:</strong> {selectedCountry.region}</p>
+                <p><ion-icon name="map-outline"></ion-icon><strong> Subregion:</strong> {selectedCountry.subregion}</p>
+                <p><ion-icon name="language-outline"></ion-icon><strong> Languages:</strong> {Object.values(selectedCountry.languages).join(', ')}</p>
+                <p><ion-icon name="cash-outline"></ion-icon><strong> Currencies:</strong> {Object.values(selectedCountry.currencies).map(c => c.name).join(', ')}</p>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
 
     </div>
   );
